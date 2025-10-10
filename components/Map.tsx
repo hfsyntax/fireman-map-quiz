@@ -218,7 +218,7 @@ export default function Map({
       >
         <TopRightMarker />
         {modal.action === "open" && (
-          <div className="p-5 hover:cursor-default flex flex-col gap-2 z-[999] absolute z top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] bg-slate-300 ">
+          <div className="p-5 hover:cursor-default flex flex-col gap-2 z-[999] absolute z top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 lg:w-[600px] bg-slate-300 ">
             <FontAwesomeIcon
               icon={faX}
               size="xl"
