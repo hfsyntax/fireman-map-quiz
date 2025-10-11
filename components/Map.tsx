@@ -1,8 +1,8 @@
 "use client"
 import type { MapCords } from "@/types"
 import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet"
-import { useEffect, useRef, useState } from "react"
-import leaflet, { map } from "leaflet"
+import { useEffect, useMemo, useRef, useState } from "react"
+import leaflet from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faX, faHouseFire, faHome } from "@fortawesome/free-solid-svg-icons"
@@ -101,6 +101,7 @@ export default function Map({
     action: "open" | "close" | null
     selectedLocation: string | null
   }>({ action: null, selectedLocation: null })
+  const modalRef = useRef<HTMLDivElement>(null)
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [hoveredLocation, setHoveredLocation] = useState<string | null>()
   const mapRef = useRef<leaflet.Map>(null)
@@ -118,10 +119,10 @@ export default function Map({
           )
         ).length
 
-  const resetZoomIcon = leaflet.divIcon({
-    html: renderToString(<FontAwesomeIcon icon={faHome} size="xl" />),
-    className: "",
-  })
+  const lineCanvas = useMemo(
+    () => leaflet.canvas({ padding: 0.5, tolerance: 5 }),
+    []
+  )
 
   const handleLocationClick = (location: string) => {
     if (!mapRef.current) return
@@ -149,6 +150,7 @@ export default function Map({
     mapRef.current.touchZoom.enable()
     mapRef.current?.zoomControl.addTo(mapRef.current)
     showModal({ action: "close", selectedLocation: null })
+    setHoveredLocation(null)
   }
 
   useEffect(() => {
@@ -218,14 +220,19 @@ export default function Map({
       >
         <TopRightMarker />
         {modal.action === "open" && (
-          <div className="p-5 hover:cursor-default flex flex-col gap-2 z-[999] absolute z top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 lg:w-[600px] bg-slate-300 ">
+          <div
+            ref={modalRef}
+            className="p-5 hover:cursor-default flex flex-col gap-2 z-[999] absolute z top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 lg:w-[600px] bg-slate-300 "
+          >
             <FontAwesomeIcon
               icon={faX}
               size="xl"
               className="ml-auto cursor-pointer hover:text-gray-500"
               onClick={handleModalClose}
             />
-            <span className=" text-xl">Select location</span>
+            <span className=" text-xl">
+              {level === 1 ? "Select location" : "Enter location"}
+            </span>
             <div className="relative w-full h-10">
               {level === 1 ? (
                 <select
@@ -290,6 +297,7 @@ export default function Map({
             return (
               <Polyline
                 key={`${road.name}_${roadIndex}_${i}`}
+                renderer={lineCanvas}
                 positions={coords}
                 pathOptions={{
                   color: submitted

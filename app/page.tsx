@@ -1,6 +1,6 @@
-import MapWrapper from "@/components/MapWrapper"
 import Quiz from "@/components/Quiz"
 
-export default function Home() {
+export default async function Home() {
+  "use cache"
   return <Quiz />
 }

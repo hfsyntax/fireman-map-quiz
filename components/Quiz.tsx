@@ -63,7 +63,7 @@ export default function Quiz() {
             reset={resetQuiz}
           />
         ) : (
-          <span>More questions soon!</span>
+          <span className="ml-2">More questions soon!</span>
         )}
       </div>
     </div>

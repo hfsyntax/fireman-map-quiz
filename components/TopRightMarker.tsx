@@ -6,7 +6,7 @@ import { DomUtil, Control } from "leaflet"
 import "@fortawesome/fontawesome-svg-core/styles.css"
 import { createRoot, Root } from "react-dom/client"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHome, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import { faHome } from "@fortawesome/free-solid-svg-icons"
 
 export default function TopRightMarker() {
   const map = useMap()
