@@ -1,17 +1,18 @@
 "use client"
-
+import type { LatLngBounds } from "leaflet"
 import { useEffect, useRef, useState } from "react"
 import { useMap } from "react-leaflet"
-import { DomUtil, Control } from "leaflet"
+import { DomUtil, Control, latLngBounds } from "leaflet"
 import "@fortawesome/fontawesome-svg-core/styles.css"
 import { createRoot, Root } from "react-dom/client"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHome } from "@fortawesome/free-solid-svg-icons"
 
-export default function TopRightMarker() {
+export default function TopRightMarker({ bounds }: { bounds: LatLngBounds }) {
   const map = useMap()
   const [isVisible, setIsVisible] = useState<boolean>(false)
   const rootRef = useRef<Root | null>(null)
+  const lastFactor = useRef<number | null>(null)
 
   useEffect(() => {
     const control = new Control({ position: "topright" })
@@ -28,14 +29,34 @@ export default function TopRightMarker() {
     const handleZoom = () => {
       const shouldShow =
         window.innerWidth < 768 ? map.getZoom() > 12 : map.getZoom() > 13
-      setIsVisible(shouldShow)
+      setIsVisible((prev) => {
+        if (prev === shouldShow) return prev
+        return shouldShow
+      })
     }
 
-    map.on("zoomend", handleZoom)
-    handleZoom()
+    const resizeBoundary = () => {
+      const zoom = map.getZoom()
+      const factor = zoom > 13 ? 1.2 : 1.0 // increase freedom when zoomed in
+      if (factor === lastFactor.current) return
+      const sw = bounds.getSouthWest()
+      const ne = bounds.getNorthEast()
+      const expanded = latLngBounds(
+        [sw.lat - 0.01 * factor, sw.lng - 0.01 * factor],
+        [ne.lat + 0.01 * factor, ne.lng + 0.01 * factor]
+      )
+      map.setMaxBounds(expanded)
+    }
+
+    const onZoomEnd = () => {
+      handleZoom()
+      resizeBoundary()
+    }
+
+    map.on("zoomend", onZoomEnd)
 
     return () => {
-      map.off("zoomend", handleZoom)
+      map.off("zoomend", onZoomEnd)
       control.remove()
     }
   }, [map])

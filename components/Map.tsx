@@ -1,11 +1,11 @@
 "use client"
 import type { MapCords } from "@/types"
-import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet"
+import { MapContainer, TileLayer, Polyline, Marker, Popup } from "react-leaflet"
 import { useEffect, useMemo, useRef, useState } from "react"
-import leaflet from "leaflet"
+import leaflet, { latLngBounds } from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faX, faHouseFire, faHome } from "@fortawesome/free-solid-svg-icons"
+import { faX, faHouseFire } from "@fortawesome/free-solid-svg-icons"
 import rt7Json from "@/rt_7.json"
 import algonkianPkyJson from "@/algonkian_parkway.json"
 import sterlingBlvdJson from "@/sterling_blvd.json"
@@ -45,15 +45,21 @@ export default function Map({
     pacificBlvdJson,
   ] as Array<MapCords>
   const fireStations: Record<string, [number, number]> = {
-    "Station 15": [38.99977193334477, -77.40212301984256],
-    "Station 25": [39.04836001989688, -77.38233103483765],
+    "Station 15": [38.999650950874056, -77.40200221538545],
+    "Station 25": [39.048452363279445, -77.3823482003563],
     "Station 35": [39.03007633604696, -77.43296606488684],
   }
   const locations: Record<string, string[]> = {
     "Station 15": ["Station 15", "station15"],
     "Station 25": ["Station 25", "station25"],
     "Station 35": ["Station 35", "station35"],
-    "Rt 7 (Harry Byrd Hwy)": ["Rt 7 (Harry Byrd Hwy)", "rt7", "route7"],
+    "Rt 7 (Harry Byrd Hwy)": [
+      "Rt 7 (Harry Byrd Hwy)",
+      "rt7(harrybyrdhwy)",
+      "harrybyrdhwy",
+      "rt7",
+      "route7",
+    ],
     "Algonkian Parkway": [
       "Algonkian Parkway",
       "algonkianparkway",
@@ -89,10 +95,10 @@ export default function Map({
     "Pacific Blvd": ["Pacific Blvd", "pacificblvd", "pacificboulevard"],
   }
 
-  const bounds: [[number, number], [number, number]] = [
+  const bounds = latLngBounds(
     [39.00264390508013, -77.52862930297853],
-    [39.05571756241876, -77.33997344970703],
-  ]
+    [39.05571756241876, -77.33997344970703]
+  )
 
   const [locationChoices, setLocationChoices] = useState<
     Record<string, string>
@@ -161,6 +167,23 @@ export default function Map({
     }
   }, [level, reset])
 
+  useEffect(() => {
+    function handleResize() {
+      const width = window.innerWidth
+      const newZoom = width < 768 ? 12 : 13
+      const currentZoom = mapRef.current?.getZoom()
+
+      if (currentZoom !== newZoom) {
+        mapRef.current?.setMinZoom(newZoom)
+        mapRef.current?.setZoom(newZoom)
+      }
+    }
+
+    window.addEventListener("resize", handleResize)
+
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
   return (
     <div className="w-full h-full flex flex-col relative gap-3">
       <span
@@ -218,7 +241,7 @@ export default function Map({
         maxBounds={bounds}
         maxBoundsViscosity={1}
       >
-        <TopRightMarker />
+        <TopRightMarker bounds={bounds} />
         {modal.action === "open" && (
           <div
             ref={modalRef}
@@ -331,7 +354,9 @@ export default function Map({
                     }
                   },
                 }}
-              />
+              >
+                {submitted && <Popup>{road.name}</Popup>}
+              </Polyline>
             )
           })
         )}
@@ -390,7 +415,9 @@ export default function Map({
                   }
                 },
               }}
-            ></Marker>
+            >
+              {submitted && <Popup>{name}</Popup>}
+            </Marker>
           )
         })}
       </MapContainer>
