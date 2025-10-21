@@ -18,6 +18,11 @@ import nokesBlvdJson from "@/nokes_blvd.json"
 import loudounCountyPkwyJson from "@/loudoun_county_pkwy.json"
 import russelBranchPkwyJson from "@/russel_branch_pkwy.json"
 import pacificBlvdJson from "@/pacific_blvd.json"
+import countrysideBlvdJson from "@/countryside_blvd.json"
+import middlefieldDriveJson from "@/middlefield_drive.json"
+import palisadeParkwayJson from "@/palisade_parkway.json"
+import waxpoolRoadJson from "@/waxpool_rd.json"
+import GloucesterPkwyJson from "@/gloucester_parkway.json"
 import TopRightMarker from "./TopRightMarker"
 import { renderToString } from "react-dom/server"
 
@@ -43,6 +48,11 @@ export default function Map({
     loudounCountyPkwyJson,
     russelBranchPkwyJson,
     pacificBlvdJson,
+    countrysideBlvdJson,
+    middlefieldDriveJson,
+    palisadeParkwayJson,
+    waxpoolRoadJson,
+    GloucesterPkwyJson,
   ] as Array<MapCords>
   const fireStations: Record<string, [number, number]> = {
     "Station 15": [38.999650950874056, -77.40200221538545],
@@ -93,6 +103,31 @@ export default function Map({
       "russellbranchparkway",
     ],
     "Pacific Blvd": ["Pacific Blvd", "pacificblvd", "pacificboulevard"],
+    "Countryside Boulevard": [
+      "Countryside Boulevard",
+      "countrysideboulevard",
+      "countrysideblvd",
+      "countryside",
+    ],
+    "Middlefield Drive": [
+      "Middlefield Drive",
+      "middlefielddrive",
+      "middlefielddr",
+      "middlefield",
+    ],
+    "Palisade Parkway": [
+      "Palisade Parkway",
+      "palisadeparkway",
+      "palisadepkwy",
+      "palisade",
+    ],
+    "Waxpool Road": ["Waxpool Road", "waxpoolroad", "waxpoolrd", "waxpool"],
+    "Gloucester Parkway": [
+      "Gloucester Parkway",
+      "gloucesterparkway",
+      "gloucester",
+      "gloucesterpkwy",
+    ],
   }
 
   const bounds = latLngBounds(
